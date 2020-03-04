@@ -1,0 +1,164 @@
+#启明提供视图函数原型 2020年3月4日
+
+Show tables where Tables_in_inss_mes like 'VW%';
+
+SELECT VIEW_DEFINITION FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = 'VW_TB_COSTLOSS'
+
+VW_TB_COSTLOSS
+
+Original - WRONG
+select year(`a`.`occur_date`) AS `yr`,month(`a`.`occur_date`) AS `mth`,concat(year(`a`.`occur_date`),'-',month(`a`.`occur_date`)) AS `yr_mth`,`a`.`customer` AS `customer`,`a`.`number` AS `number`,`a`.`dept_name` AS `dept_name`,sum(`a`.`price`) AS `price`,`a`.`occur_date` AS `occur_date` from `inss_mes`.`TB_QA_COSTLOSS` `a` where (`a`.`active` = 1) group by `a`.`dept_name`,`a`.`occur_date`
+
+Amended
+Alter VIEW VW_TB_COSTLOSS as
+select year(a.occur_date) AS yr,month(a.occur_date) AS mth,concat(year(a.occur_date),'-',month(a.occur_date)) AS yr_mth,a.customer AS customer,a.number AS number,a.dept_name AS dept_name,sum(a.price) AS price,a.occur_date AS occur_date from inss_mes.TB_QA_COSTLOSS a where (a.active = 1) group by a.dept_name,a.occur_date,a.customer,a.number
+
+
+SELECT VIEW_DEFINITION FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = 'VW_TB_CUST_FEEDBACK'
+
+Original - WRONG
+select year(`a`.`feedback_dt`) AS `yr`,month(`a`.`feedback_dt`) AS `mth`,concat(year(`a`.`feedback_dt`),'-',month(`a`.`feedback_dt`)) AS `yr_mth`,`a`.`company_name` AS `company_name`,`a`.`dept_name` AS `dept_name`,`a`.`feedback_dt` AS `feedback_dt`,count(0) AS `count` from `inss_mes`.`TB_CUST_FEEDBACK` `a` where (`a`.`active` = 1) group by `a`.`company_name`,`a`.`feedback_dt` 
+
+Amended
+Alter VIEW VW_TB_CUST_FEEDBACK as
+select year(a.feedback_dt) AS yr,month(a.feedback_dt) AS mth,concat(year(a.feedback_dt),'-',month(a.feedback_dt)) AS yr_mth,a.company_name AS company_name,a.dept_name AS dept_name,a.feedback_dt AS feedback_dt,count(0) AS count from inss_mes.TB_CUST_FEEDBACK a where (a.active = 1) group by a.company_name,a.dept_name,a.feedback_dt
+
+
+
+SELECT VIEW_DEFINITION FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = 'VW_TB_ELEC_DAY'
+
+Original - WRONG
+select a.dt AS dt,b.dept AS dept,b.dept_code AS dept_code,sum(a.inc_value) AS inc_value from (inss_mes.TB_ELEC a join inss_mes.TB_MAP_DEPT b) where ((convert(a.location using utf8) = b.location) and (a.inc_value is not null) and (a.active = 1)) group by a.dt,b.dept 
+
+Amended
+Alter VIEW VW_TB_ELEC_DAY as
+select a.dt AS dt,b.dept AS dept,b.dept_code AS dept_code,sum(a.inc_value) AS inc_value from inss_mes.TB_ELEC a , inss_mes.TB_MAP_DEPT b where a.location = b.location and a.inc_value is not null and a.active = 1 group by a.dt,b.dept,b.dept_code
+
+
+SELECT VIEW_DEFINITION FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = 'VW_TB_ELEC_HR'
+
+Original - WRONG
+select `a`.`dt` AS `dt`,`a`.`tm` AS `tm`,`b`.`dept` AS `dept`,`b`.`dept_code` AS `dept_code`,sum(`a`.`inc_value`) AS `inc_value` from (`inss_mes`.`TB_ELEC` `a` join `inss_mes`.`TB_MAP_DEPT` `b`) where ((convert(`a`.`location` using utf8) = `b`.`location`) and (`a`.`inc_value` is not null) and (`a`.`active` = 1)) group by `a`.`dt`,`a`.`tm`,`b`.`dept` 
+
+Amended
+Alter view VW_TB_ELEC_HR as
+select a.dt AS dt,a.tm AS tm,b.dept AS dept,b.dept_code AS dept_code,sum(a.inc_value) AS inc_value from (inss_mes.TB_ELEC a join inss_mes.TB_MAP_DEPT b) where ((convert(a.location using utf8) = b.location) and (a.inc_value is not null) and (a.active = 1)) group by a.dt,a.tm,b.dept,b.dept_code 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SELECT VIEW_DEFINITION FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = 'VW_TB_ELEC_MTH'
+
+Original - WRONG
+select year(`a`.`dt`) AS `yr`,month(`a`.`dt`) AS `mth`,concat(year(`a`.`dt`),'-',month(`a`.`dt`)) AS `yr_mth`,`b`.`dept` AS `dept`,`b`.`dept_code` AS `dept_code`,sum(`a`.`inc_value`) AS `inc_value`,((year(`a`.`dt`) * 100) + month(`a`.`dt`)) AS `yr_mth_num`,last_day(`a`.`dt`) AS `last_day_mth` from (`inss_mes`.`TB_ELEC` `a` join `inss_mes`.`TB_MAP_DEPT` `b`) where ((convert(`a`.`location` using utf8) = `b`.`location`) and (`a`.`inc_value` is not null) and (`a`.`active` = 1)) group by year(`a`.`dt`),month(`a`.`dt`),`b`.`dept` 
+
+Amended
+Alter view VW_TB_ELEC_MTH as 
+select year(a.dt) AS yr, month(a.dt) AS mth, b.dept AS dept, b.dept_code AS dept_code, last_day(a.dt) AS last_day_mth,  sum(a.inc_value) AS inc_value, concat(year(a.dt),'-',month(a.dt)) AS yr_mth, (year(a.dt) * 100) + month(a.dt) AS yr_mth_num
+ from inss_mes.TB_ELEC a , inss_mes.TB_MAP_DEPT b where a.location = b.location and a.inc_value is not null and a.active = 1 group by year(a.dt),month(a.dt),b.dept,b.dept_code,last_day(a.dt), concat(year(a.dt),'-',month(a.dt)), (year(a.dt) * 100) + month(a.dt)
+
+
+       
+SELECT VIEW_DEFINITION FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = 'VW_TB_PARTICLE_DAY'
+
+Original - WRONG
+select `a`.`dt` AS `dt`,`b`.`dept` AS `dept`,`b`.`dept_code` AS `dept_code`,sum(`a`.`inc_value`) AS `inc_value` from (`inss_mes`.`TB_ELEC` `a` join `inss_mes`.`TB_MAP_DEPT` `b`) where ((convert(`a`.`location` using utf8) = `b`.`location`) and (`a`.`inc_value` is not null) and (`a`.`active` = 1) and (`b`.`unit_of_meas` = 'PER')) group by `a`.`dt`,`b`.`dept
+
+Amended
+Alter View VW_TB_PARTICLE_DAY as
+select a.dt AS dt,b.dept AS dept,b.dept_code AS dept_code,sum(a.inc_value) AS inc_value from (inss_mes.TB_ELEC a join inss_mes.TB_MAP_DEPT b) where ((convert(a.location using utf8) = b.location) and (a.inc_value is not null) and (a.active = 1) and (b.unit_of_meas = 'PER')) group by a.dt,b.dept,b.dept_code
+
+
+SELECT VIEW_DEFINITION FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = 'VW_TB_PARTICLE_HR'
+
+
+
+Original - WRONG
+select `a`.`dt` AS `dt`,`a`.`tm` AS `tm`,`b`.`dept` AS `dept`,`b`.`dept_code` AS `dept_code`,sum(`a`.`inc_value`) AS `inc_value` from (`inss_mes`.`TB_ELEC` `a` join `inss_mes`.`TB_MAP_DEPT` `b`) where ((convert(`a`.`location` using utf8) = `b`.`location`) and (`a`.`inc_value` is not null) and (`a`.`active` = 1) and (`b`.`unit_of_meas` = 'PER')) group by `a`.`dt`,`a`.`tm`,`b`.`dept` 
+
+Amended
+Alter View VW_TB_PARTICLE_HR as
+select a.dt AS dt,a.tm AS tm,b.dept AS dept,b.dept_code AS dept_code,sum(a.inc_value) AS inc_value from (inss_mes.TB_ELEC a join inss_mes.TB_MAP_DEPT b) where ((convert(a.location using utf8) = b.location) and (a.inc_value is not null) and (a.active = 1) and (b.unit_of_meas = 'PER')) group by a.dt,a.tm,b.dept,b.dept_code 
+
+
+SELECT VIEW_DEFINITION FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = 'VW_TB_PARTICLE_MTH'
+
+
+Original - WRONG
+select year(`a`.`dt`) AS `yr`,month(`a`.`dt`) AS `mth`,concat(year(`a`.`dt`),'-',month(`a`.`dt`)) AS `yr_mth`,`b`.`dept` AS `dept`,`b`.`dept_code` AS `dept_code`,sum(`a`.`inc_value`) AS `inc_value`,((year(`a`.`dt`) * 100) + month(`a`.`dt`)) AS `yr_mth_num`,last_day(`a`.`dt`) AS `last_day_mth` from (`inss_mes`.`TB_ELEC` `a` join `inss_mes`.`TB_MAP_DEPT` `b`) where ((convert(`a`.`location` using utf8) = `b`.`location`) and (`a`.`inc_value` is not null) and (`a`.`active` = 1) and (`b`.`unit_of_meas` = 'PER')) group by year(`a`.`dt`),month(`a`.`dt`),`b`.`dept` 
+
+Amended
+Alter view VW_TB_PARTICLE_MTH as
+select year(a.dt) AS yr,month(a.dt) AS mth,concat(year(a.dt),
+'-',month(a.dt)) AS yr_mth,b.dept AS dept,b.dept_code AS dept_code,((year(a.dt) * 100) + month(a.dt)) AS yr_mth_num,last_day(a.dt) AS last_day_mth,sum(a.inc_value) AS inc_value from (inss_mes.TB_ELEC a join inss_mes.TB_MAP_DEPT b) where ((convert(a.location using utf8) = b.location) and (a.inc_value is not null) and (a.active = 1) and (b.unit_of_meas = 'PER')) group by year(a.dt),month(a.dt),concat(year(a.dt),
+'-',month(a.dt)),b.dept,b.dept_code,((year(a.dt) * 100) + month(a.dt)),last_day(a.dt) 
+
+
+'VW_TB_THICKNESS'
+
+OK
+
+
+
+
+     
+VW_TB_UNQUALIFIED   
+OK
+
+SELECT VIEW_DEFINITION FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = 'VW_TB_WATER_DAY'
+
+
+Original - WRONG
+select `a`.`dt` AS `dt`,`b`.`dept` AS `dept`,`b`.`dept_code` AS `dept_code`,sum(`a`.`inc_value`) AS `inc_value` from (`inss_mes`.`TB_ELEC` `a` join `inss_mes`.`TB_MAP_DEPT` `b`) where ((convert(`a`.`location` using utf8) = `b`.`location`) and (`a`.`inc_value` is not null) and (`a`.`active` = 1) and (`b`.`unit_of_meas` = 'LEVEL')) group by `a`.`dt`,`b`.`dept`
+
+
+
+Amended
+Alter view VW_TB_WATER_DAY as
+select `a`.`dt` AS `dt`,`b`.`dept` AS `dept`,`b`.`dept_code` AS `dept_code`,sum(`a`.`inc_value`) AS `inc_value` from (`inss_mes`.`TB_ELEC` `a` join `inss_mes`.`TB_MAP_DEPT` `b`) where ((convert(`a`.`location` using utf8) = `b`.`location`) and (`a`.`inc_value` is not null) and (`a`.`active` = 1) and (`b`.`unit_of_meas` = 'LEVEL')) group by `a`.`dt`,`b`.`dept`,b.dept_code
+
+
+SELECT VIEW_DEFINITION FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = ' VW_TB_WATER_HR'
+
+
+Original - WRONG
+None – no definition
+     
+Added
+alter view VW_TB_WATER_HR as
+select a.dt AS dt,a.tm AS tm,b.dept AS dept,b.dept_code AS dept_code,sum(a.inc_value) AS inc_value from (inss_mes.TB_ELEC a join inss_mes.TB_MAP_DEPT b) where ((convert(a.location using utf8) = b.location) and (a.inc_value is not null) and (a.active = 1) and (b.unit_of_meas = 'LEVEL')) group by a.dt,a.tm,b.dept,b.dept_code 
+
+
+SELECT VIEW_DEFINITION FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = ' VW_TB_WATER_MTH'
+
+Original - WRONG
+None – no definition
+     
+Added
+alter view VW_TB_WATER_MTH as
+select year(a.dt) AS yr,month(a.dt) AS mth,concat(year(a.dt),
+'-',month(a.dt)) AS yr_mth,b.dept AS dept,b.dept_code AS dept_code,((year(a.dt) * 100) + month(a.dt)) AS yr_mth_num,last_day(a.dt) AS last_day_mth,sum(a.inc_value) AS inc_value from (inss_mes.TB_ELEC a join inss_mes.TB_MAP_DEPT b) where ((convert(a.location using utf8) = b.location) and (a.inc_value is not null) and (a.active = 1) and (b.unit_of_meas = 'LEVEL')) group by year(a.dt),month(a.dt),concat(year(a.dt),
+'-',month(a.dt)),b.dept,b.dept_code,((year(a.dt) * 100) + month(a.dt)),last_day(a.dt) 
+
+
+Alter view VW_TB_PARTICLES as
+select a.location AS location , sum(a.value) AS value,a.dt AS dt from TB_PARTICLES a group by a.location,a.dt
